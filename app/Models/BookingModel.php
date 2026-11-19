@@ -25,10 +25,11 @@ class BookingModel {
 
     public function create(array $data): string {
         $code = 'VC' . rand(100000, 999999);
-        $sql = "INSERT INTO bookings (booking_code, car_id, customer_name, customer_phone, driver_license, pickup_date, return_date, rental_days, delivery_type, promo_code, discount_amount, total_amount)
-                VALUES (:booking_code, :car_id, :customer_name, :customer_phone, :driver_license, :pickup_date, :return_date, :rental_days, :delivery_type, :promo_code, :discount_amount, :total_amount)";
+        $sql = "INSERT INTO bookings (user_id, booking_code, car_id, customer_name, customer_phone, driver_license, pickup_date, return_date, rental_days, delivery_type, promo_code, discount_amount, total_amount)
+                VALUES (:user_id, :booking_code, :car_id, :customer_name, :customer_phone, :driver_license, :pickup_date, :return_date, :rental_days, :delivery_type, :promo_code, :discount_amount, :total_amount)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
+            ':user_id'         => $data['user_id'],
             ':booking_code'    => $code,
             ':car_id'          => $data['car_id'],
             ':customer_name'   => $data['customer_name'],
@@ -56,8 +57,22 @@ class BookingModel {
         return $this->db->query($sql)->fetchAll();
     }
 
-    public function cancel(int $id): bool {
-        $stmt = $this->db->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
+    public function getForUser(int $userId): array {
+        $stmt = $this->db->prepare(
+            "SELECT b.*, c.name AS car_name, c.image AS car_image, c.district AS car_district
+             FROM bookings b
+             JOIN cars c ON b.car_id = c.id
+             WHERE b.user_id = :user_id
+             ORDER BY b.id DESC"
+        );
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll();
+    }
+
+    public function cancel(int $id, int $userId): bool {
+        $stmt = $this->db->prepare(
+            "UPDATE bookings SET status = 'cancelled' WHERE id = :id AND user_id = :user_id"
+        );
+        return $stmt->execute([':id' => $id, ':user_id' => $userId]);
     }
 }

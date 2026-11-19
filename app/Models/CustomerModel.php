@@ -13,7 +13,7 @@ class CustomerModel {
 
     public function getAll(string $keyword = '', string $status = 'all'): array {
         $sql = "SELECT c.*,
-                       (SELECT COUNT(*) FROM accounts a WHERE a.customer_id = c.id) AS account_count
+                       (SELECT COUNT(*) FROM users u WHERE u.customer_id = c.id) AS account_count
                 FROM customers c WHERE 1=1";
         $params = [];
 

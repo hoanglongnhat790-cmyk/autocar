@@ -27,24 +27,32 @@ final class ValidatorTest extends TestCase {
     }
 
     public function testAccountValidatorRequiresPasswordWhenCreating(): void {
-        $data = ['username' => 'user_01', 'password' => '', 'role' => 'staff', 'status' => 'active'];
+        $data = [
+            'name' => 'Người dùng', 'email' => 'user@example.com',
+            'password' => '', 'role' => 'user', 'status' => 'active',
+        ];
         $this->assertArrayHasKey('password', Validator::account($data, true));
     }
 
     public function testAccountValidatorAllowsEmptyPasswordWhenUpdating(): void {
-        $data = ['username' => 'user_01', 'password' => '', 'role' => 'staff', 'status' => 'active'];
+        $data = [
+            'name' => 'Người dùng', 'email' => 'user@example.com',
+            'password' => '', 'role' => 'user', 'status' => 'active',
+        ];
         $this->assertSame([], Validator::account($data, false));
     }
 
-    public function testAccountValidatorRejectsInvalidUsernameRoleAndStatus(): void {
+    public function testAccountValidatorRejectsInvalidEmailRoleAndStatus(): void {
         $errors = Validator::account([
-            'username' => 'a b',
+            'name' => '',
+            'email' => 'bad-email',
             'password' => '12345678',
             'role' => 'superadmin',
             'status' => 'banned',
             'customer_id' => -1,
         ], true);
-        $this->assertArrayHasKey('username', $errors);
+        $this->assertArrayHasKey('name', $errors);
+        $this->assertArrayHasKey('email', $errors);
         $this->assertArrayHasKey('role', $errors);
         $this->assertArrayHasKey('status', $errors);
         $this->assertArrayHasKey('customer_id', $errors);

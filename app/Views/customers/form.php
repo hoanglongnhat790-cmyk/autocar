@@ -7,6 +7,7 @@
   </div>
 
   <form method="POST" action="<?= base_url($customer ? '/customer/update' : '/customer/store') ?>" class="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+    <?= csrf_field() ?>
     <?php if ($customer): ?>
       <input type="hidden" name="id" value="<?= (int)$customer['id'] ?>" />
     <?php endif; ?>

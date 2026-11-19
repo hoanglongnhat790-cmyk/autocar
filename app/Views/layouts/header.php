@@ -18,24 +18,27 @@
         <span class="text-xl font-extrabold tracking-tight text-slate-900">Viet<span class="text-emerald-600">Car</span> <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">PHP MVC</span></span>
       </a>
 
-      <nav class="flex items-center gap-5 text-sm font-medium">
-        <a href="<?= base_url('/') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Thuê xe</a>
-        <a href="<?= base_url('/bookings') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Chuyến của tôi</a>
-        <?php if (\App\Core\Auth::check()): ?>
-          <a href="<?= base_url('/customers') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Khách hàng</a>
-          <?php if (\App\Core\Auth::hasRole('admin')): ?>
+      <nav class="flex items-center gap-4 text-sm font-medium">
+        <a href="<?= base_url('/') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Thuê xe tự lái</a>
+        <?php if (current_user() !== null): ?>
+          <a href="<?= base_url('/bookings') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Chuyến của tôi</a>
+          <a href="<?= base_url('/support') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Hỗ trợ</a>
+          <?php if (is_admin()): ?>
+            <a href="<?= base_url('/customers') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Khách hàng</a>
             <a href="<?= base_url('/accounts') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Tài khoản</a>
+            <a href="<?= base_url('/admin') ?>" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-emerald-600 transition">
+              <i class="fa-solid fa-gauge-high mr-1"></i> Quản trị
+            </a>
           <?php endif; ?>
-          <a href="<?= base_url('/admin') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Quản trị</a>
+          <span class="text-xs text-slate-600">Xin chào, <?= e(current_user()['name']) ?></span>
           <form method="POST" action="<?= base_url('/logout') ?>">
-            <button type="submit" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:border-rose-300 hover:text-rose-600 transition">
-              <i class="fa-solid fa-right-from-bracket mr-1"></i><?= e(\App\Core\Auth::user()['username']) ?>
-            </button>
+            <?= csrf_field() ?>
+            <button class="text-slate-600 hover:text-rose-600 font-semibold">Đăng xuất</button>
           </form>
         <?php else: ?>
-          <a href="<?= base_url('/login') ?>" class="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-emerald-600 transition">
-            <i class="fa-solid fa-right-to-bracket mr-1"></i> Đăng nhập
-          </a>
+          <a href="<?= base_url('/support') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Hỗ trợ</a>
+          <a href="<?= base_url('/login') ?>" class="text-slate-700 hover:text-emerald-600 font-semibold transition">Đăng nhập</a>
+          <a href="<?= base_url('/register') ?>" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">Đăng ký</a>
         <?php endif; ?>
       </nav>
     </div>
@@ -49,13 +52,12 @@
       </div>
     </div>
   <?php endif; ?>
-
   <?php if (!empty($_SESSION['flash_error'])): ?>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
       <div class="bg-rose-50 border border-rose-300 text-rose-800 px-4 py-3 rounded-xl text-sm font-semibold">
-        <i class="fa-solid fa-circle-exclamation text-rose-600 mr-2"></i><?= e($_SESSION['flash_error']) ?>
-        <?php unset($_SESSION['flash_error']); ?>
+        <?= e($_SESSION['flash_error']) ?>
       </div>
     </div>
+    <?php unset($_SESSION['flash_error']); ?>
   <?php endif; ?>
   <main class="flex-1">

@@ -9,13 +9,15 @@ class Database {
 
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            $host = '127.0.0.1';
-            $db   = 'vietcar_db';
-            $user = 'root';
-            $pass = '';
+            $host = getenv('VIETCAR_DB_HOST') ?: '127.0.0.1';
+            $port = getenv('VIETCAR_DB_PORT') ?: '3306';
+            $db   = getenv('VIETCAR_DB_NAME') ?: 'vietcar_db';
+            $user = getenv('VIETCAR_DB_USER') ?: 'root';
+            $pass = getenv('VIETCAR_DB_PASS');
+            $pass = $pass === false ? '' : $pass;
             $charset = 'utf8mb4';
 
-            $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -25,7 +27,12 @@ class Database {
             try {
                 self::$instance = new PDO($dsn, $user, $pass, $options);
             } catch (PDOException $e) {
-                die("Lỗi kết nối CSDL: " . $e->getMessage() . "<br>Vui lòng import file <code>database/vietcar.sql</code> vào MySQL.");
+                die(
+                    "Lỗi kết nối MySQL tại {$host}:{$port}, database '{$db}': "
+                    . $e->getMessage()
+                    . "<br>Kiểm tra MySQL đang chạy, thông tin đăng nhập và import "
+                    . "<code>database/vietcar.sql</code> nếu database chưa tồn tại."
+                );
             }
         }
         return self::$instance;

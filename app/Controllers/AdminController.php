@@ -4,17 +4,21 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\CarModel;
 use App\Models\BookingModel;
+use App\Models\SupportModel;
 
 class AdminController extends Controller {
     private CarModel $carModel;
     private BookingModel $bookingModel;
+    private SupportModel $supportModel;
 
     public function __construct() {
         $this->carModel = new CarModel();
         $this->bookingModel = new BookingModel();
+        $this->supportModel = new SupportModel();
     }
 
     public function index(): void {
+        $this->requireAdmin();
         $cars = $this->carModel->getFiltered([]);
         $bookings = $this->bookingModel->getAll();
         $revenue = array_sum(array_map(fn($b) => $b['status'] !== 'cancelled' ? (int)$b['total_amount'] : 0, $bookings));
@@ -28,6 +32,8 @@ class AdminController extends Controller {
     }
 
     public function storeCar(): void {
+        $this->requireAdmin();
+        $this->verifyCsrfToken();
         $image = trim($_POST['image'] ?? '');
         if (empty($image)) {
             $image = 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=80';
@@ -54,6 +60,8 @@ class AdminController extends Controller {
     }
 
     public function deleteCar(): void {
+        $this->requireAdmin();
+        $this->verifyCsrfToken();
         $id = (int)($_POST['car_id'] ?? 0);
         if ($id > 0) {
             $this->carModel->delete($id);
@@ -63,16 +71,26 @@ class AdminController extends Controller {
     }
 
     public function getLocations(): void {
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($this->carModel->getLocations());
-    exit;
-}
+        $this->requireAdmin();
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($this->carModel->getLocations());
+        exit;
+    }
 
-public function simulateMovement(): void {
-    $this->carModel->simulateMove();
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['status' => 'ok']);
-    exit;
-}
+    public function simulateMovement(): void {
+        $this->requireAdmin();
+        $this->verifyCsrfToken();
+        $this->carModel->simulateMove();
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['status' => 'ok']);
+        exit;
+    }
 
+    public function supportHistory(): void {
+        $this->requireAdmin();
+        $this->view('admin/support', [
+            'title' => 'Lịch sử hỗ trợ - VietCar',
+            'messages' => $this->supportModel->getRecentForAdmin(),
+        ]);
+    }
 }

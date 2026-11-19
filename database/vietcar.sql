@@ -50,31 +50,6 @@ CREATE TABLE IF NOT EXISTS promotions (
     is_active TINYINT(1) DEFAULT 1
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS customers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    phone VARCHAR(20) NOT NULL,
-    address VARCHAR(255) DEFAULT '',
-    identity_number VARCHAR(30) DEFAULT '',
-    status ENUM('active', 'inactive') DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'staff', 'customer') NOT NULL DEFAULT 'customer',
-    customer_id INT NULL,
-    status ENUM('active', 'locked') DEFAULT 'active',
-    last_login_at DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
 INSERT INTO promotions (code, discount_type, discount_value, is_active) VALUES
 ('CHAO2026', 'fixed', 150000, 1),
 ('GIAM10', 'percent', 10, 1);
@@ -86,13 +61,3 @@ INSERT INTO cars (name, brand, category, seats, transmission, fuel, consumption,
 ('Toyota Corolla Cross 1.8V 2024', 'Toyota', '5 chỗ', 5, 'Số tự động', 'Xăng', '6.5L/100km', 890000, 'Đà Nẵng', 'Hải Châu, Đà Nẵng', 4.9, 95, 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=900&q=80', 'Camera 360,Cảm biến lùi,Bản đồ GPS', 'Đà Nẵng Travel Car', 'Gầm cao linh hoạt, giao xe miễn phí tại sân bay Quốc tế Đà Nẵng.'),
 ('Ford Ranger Wildtrak 2024', 'Ford', 'Bán tải', 5, 'Số tự động', 'Dầu', '7.5L/100km', 1100000, 'Phú Quốc', 'Dương Đông, Phú Quốc', 4.8, 41, 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?auto=format&fit=crop&w=900&q=80', 'Camera 360,Cảm biến lùi,Bản đồ GPS', 'Đảo Ngọc Auto', 'Bán tải mạnh mẽ chinh phục mọi cung đường đảo ngọc.'),
 ('Kia Carnival Signature 2024', 'Kia', '7 chỗ', 7, 'Số tự động', 'Dầu', '7.0L/100km', 1650000, 'Hà Nội', 'Long Biên, Hà Nội', 4.9, 73, 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80', 'Camera 360,Cửa sổ trời,Cảm biến lùi,Bản đồ GPS', 'VIP Limousine Hà Nội', 'MPV 7 ghế thương gia chỉnh điện, cửa lùa tự động.');
-
-INSERT INTO customers (full_name, email, phone, address, identity_number, status) VALUES
-('Nguyễn Văn An', 'an.nguyen@example.com', '0901234567', 'Cầu Giấy, Hà Nội', '001202012345', 'active'),
-('Trần Thị Bình', 'binh.tran@example.com', '0912345678', 'Quận 7, TP.HCM', '001202054321', 'active'),
-('Lê Hoàng Cường', 'cuong.le@example.com', '0923456789', 'Hải Châu, Đà Nẵng', '001202077889', 'inactive');
-
-INSERT INTO accounts (username, password_hash, role, customer_id, status) VALUES
-('admin', '$2y$10$nXKn.Y2udNnHfon7ywO0FetKeZed1t6yKZ0XBuZ9z27yAbpCpJVDa', 'admin', NULL, 'active'),
-('staff', '$2y$10$PM4/57kJSNEjoRlM2RSpw.6dsngV0OuGB3GNB3kvRS4pgz.x7R1N6', 'staff', NULL, 'active'),
-('an.nguyen', '$2y$10$CXWybc0oocpJ7uZQnW4K.OUWC8SVP/FPuA28jocSaVGd/M2.bUSgG', 'customer', 1, 'active');

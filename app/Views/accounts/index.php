@@ -12,16 +12,15 @@
   <form method="GET" action="<?= base_url('/accounts') ?>" class="bg-white p-4 rounded-2xl border border-slate-200 mb-6 flex flex-wrap gap-3 items-end">
     <div class="flex-1 min-w-56">
       <label class="block text-xs font-bold text-slate-500 mb-1">Tìm kiếm</label>
-      <input type="text" name="keyword" value="<?= e($keyword) ?>" placeholder="Tên đăng nhập, khách hàng"
+      <input type="text" name="keyword" value="<?= e($keyword) ?>" placeholder="Họ tên, email, khách hàng"
              class="w-full h-10 px-3 rounded-xl border border-slate-200 text-sm" />
     </div>
     <div>
       <label class="block text-xs font-bold text-slate-500 mb-1">Vai trò</label>
       <select name="role" class="h-10 px-3 rounded-xl border border-slate-200 text-sm bg-white">
         <option value="all" <?= $role === 'all' ? 'selected' : '' ?>>Tất cả</option>
-        <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Admin</option>
-        <option value="staff" <?= $role === 'staff' ? 'selected' : '' ?>>Nhân viên</option>
-        <option value="customer" <?= $role === 'customer' ? 'selected' : '' ?>>Khách hàng</option>
+        <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Quản trị viên</option>
+        <option value="user" <?= $role === 'user' ? 'selected' : '' ?>>Người dùng</option>
       </select>
     </div>
     <div>
@@ -54,8 +53,8 @@
         <?php foreach ($accounts as $a): ?>
           <tr>
             <td class="py-3 px-4">
-              <div class="font-bold text-slate-900"><?= e($a['username']) ?></div>
-              <div class="text-xs text-slate-400">#<?= (int)$a['id'] ?></div>
+              <div class="font-bold text-slate-900"><?= e($a['name']) ?></div>
+              <div class="text-xs text-slate-400"><?= e($a['email']) ?></div>
             </td>
             <td class="py-3 px-4">
               <span class="text-xs font-bold px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700"><?= e($a['role']) ?></span>
@@ -71,11 +70,13 @@
               <div class="flex justify-end gap-3 text-xs font-semibold">
                 <a href="<?= base_url('/accounts/edit?id=' . (int)$a['id']) ?>" class="text-indigo-600 hover:underline">Sửa</a>
                 <form method="POST" action="<?= base_url('/account/status') ?>">
+                  <?= csrf_field() ?>
                   <input type="hidden" name="id" value="<?= (int)$a['id'] ?>" />
                   <input type="hidden" name="status" value="<?= $a['status'] === 'active' ? 'locked' : 'active' ?>" />
                   <button type="submit" class="text-amber-600 hover:underline"><?= $a['status'] === 'active' ? 'Khóa' : 'Mở khóa' ?></button>
                 </form>
                 <form method="POST" action="<?= base_url('/account/delete') ?>" onsubmit="return confirm('Xóa tài khoản này?')">
+                  <?= csrf_field() ?>
                   <input type="hidden" name="id" value="<?= (int)$a['id'] ?>" />
                   <button type="submit" class="text-rose-600 hover:underline">Xóa</button>
                 </form>

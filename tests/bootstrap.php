@@ -20,16 +20,16 @@ final class TestDatabase {
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )");
 
-        $pdo->exec("CREATE TABLE accounts (
+        $pdo->exec("CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
-            role TEXT NOT NULL DEFAULT 'customer',
-            customer_id INTEGER NULL REFERENCES customers(id) ON DELETE SET NULL,
+            role TEXT NOT NULL DEFAULT 'user',
             status TEXT DEFAULT 'active',
+            customer_id INTEGER NULL REFERENCES customers(id) ON DELETE SET NULL,
             last_login_at TEXT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )");
 
         return $pdo;

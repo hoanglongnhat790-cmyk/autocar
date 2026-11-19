@@ -15,6 +15,8 @@ class BookingController extends Controller {
     }
 
     public function store(): void {
+        $user = $this->requireLogin();
+        $this->verifyCsrfToken();
         $carId = (int)($_POST['car_id'] ?? 0);
         $car = $this->carModel->findById($carId);
         if (!$car) {
@@ -37,6 +39,7 @@ class BookingController extends Controller {
         $totalAmount = max(0, $baseTotal + $insurance + $deliveryFee - $discount);
 
         $bookingCode = $this->bookingModel->create([
+            'user_id'         => (int)$user['id'],
             'car_id'          => $carId,
             'customer_name'   => trim($_POST['customer_name']),
             'customer_phone'  => trim($_POST['customer_phone']),
@@ -55,7 +58,8 @@ class BookingController extends Controller {
     }
 
     public function index(): void {
-        $bookings = $this->bookingModel->getAll();
+        $user = $this->requireLogin();
+        $bookings = $this->bookingModel->getForUser((int)$user['id']);
         $this->view('bookings/index', [
             'title'    => 'Chuyến đi của tôi - VietCar',
             'bookings' => $bookings
@@ -63,10 +67,13 @@ class BookingController extends Controller {
     }
 
     public function cancel(): void {
+        $user = $this->requireLogin();
+        $this->verifyCsrfToken();
         $id = (int)($_POST['booking_id'] ?? 0);
         if ($id > 0) {
-            $this->bookingModel->cancel($id);
-            $_SESSION['flash_success'] = "Đã hủy đơn đặt xe.";
+            if ($this->bookingModel->cancel($id, (int)$user['id'])) {
+                $_SESSION['flash_success'] = "Đã hủy đơn đặt xe.";
+            }
         }
         $this->redirect('/bookings');
     }

@@ -50,11 +50,20 @@ class Validator {
     public static function account(array $data, bool $requirePassword = true): array {
         $errors = [];
 
-        $username = trim((string)($data['username'] ?? ''));
-        if ($username === '') {
-            $errors['username'] = 'Tên đăng nhập không được để trống.';
-        } elseif (!preg_match('/^[a-zA-Z0-9_.-]{3,50}$/', $username)) {
-            $errors['username'] = 'Tên đăng nhập chỉ gồm chữ, số, dấu . _ - và tối thiểu 3 ký tự.';
+        $name = trim((string)($data['name'] ?? ''));
+        if ($name === '') {
+            $errors['name'] = 'Họ tên không được để trống.';
+        } elseif (self::length($name) > 100) {
+            $errors['name'] = 'Họ tên tối đa 100 ký tự.';
+        }
+
+        $email = trim((string)($data['email'] ?? ''));
+        if ($email === '') {
+            $errors['email'] = 'Email không được để trống.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email không đúng định dạng.';
+        } elseif (self::length($email) > 190) {
+            $errors['email'] = 'Email tối đa 190 ký tự.';
         }
 
         $password = (string)($data['password'] ?? '');
@@ -66,8 +75,8 @@ class Validator {
             }
         }
 
-        $role = (string)($data['role'] ?? 'customer');
-        if (!in_array($role, ['admin', 'staff', 'customer'], true)) {
+        $role = (string)($data['role'] ?? 'user');
+        if (!in_array($role, ['admin', 'user'], true)) {
             $errors['role'] = 'Vai trò không hợp lệ.';
         }
 

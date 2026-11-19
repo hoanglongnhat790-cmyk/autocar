@@ -35,7 +35,16 @@
 
     <!-- Booking Form -->
     <div class="lg:col-span-5">
+      <?php if (current_user() === null): ?>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-lg text-center">
+          <h2 class="text-lg font-extrabold text-slate-900">Đăng nhập để đặt xe</h2>
+          <p class="text-sm text-slate-500 mt-2 mb-5">Đơn đặt xe sẽ được lưu vào tài khoản của bạn.</p>
+          <a href="<?= base_url('/login') ?>" class="inline-block px-5 py-3 bg-emerald-600 text-white font-bold rounded-xl">Đăng nhập</a>
+          <a href="<?= base_url('/register') ?>" class="inline-block ml-2 px-5 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl">Đăng ký</a>
+        </div>
+      <?php else: ?>
       <form method="POST" action="<?= base_url('/booking/store') ?>" id="booking-form" data-price="<?= (int)$car['price_per_day'] ?>" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-lg space-y-4 text-sm">
+        <?= csrf_field() ?>
         <input type="hidden" name="car_id" value="<?= (int)$car['id'] ?>" />
         <div class="flex items-baseline justify-between border-b border-slate-100 pb-4">
           <div>
@@ -58,7 +67,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">Họ và tên khách thuê *</label>
-          <input type="text" name="customer_name" required placeholder="Nguyễn Văn A" class="w-full h-10 px-3 rounded-xl border border-slate-200" />
+          <input type="text" name="customer_name" required value="<?= e(current_user()['name']) ?>" placeholder="Nguyễn Văn A" class="w-full h-10 px-3 rounded-xl border border-slate-200" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -100,6 +109,7 @@
           Xác nhận đặt xe ngay
         </button>
       </form>
+      <?php endif; ?>
     </div>
   </div>
 </div>

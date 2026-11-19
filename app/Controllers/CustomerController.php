@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Validator;
 use App\Models\CustomerModel;
@@ -10,7 +9,7 @@ class CustomerController extends Controller {
     private CustomerModel $customerModel;
 
     public function __construct() {
-        Auth::requireRole('admin', 'staff');
+        $this->requireAdmin();
         $this->customerModel = new CustomerModel();
     }
 
@@ -36,6 +35,7 @@ class CustomerController extends Controller {
     }
 
     public function store(): void {
+        $this->verifyCsrfToken();
         $data = $this->postData();
         $errors = Validator::customer($data);
         if (!$errors) {
@@ -73,6 +73,7 @@ class CustomerController extends Controller {
     }
 
     public function update(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         $customer = $this->customerModel->findById($id);
         if (!$customer) {
@@ -103,6 +104,7 @@ class CustomerController extends Controller {
     }
 
     public function toggleStatus(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         $status = (string)($_POST['status'] ?? '');
         if ($id > 0 && $this->customerModel->setStatus($id, $status)) {
@@ -112,6 +114,7 @@ class CustomerController extends Controller {
     }
 
     public function delete(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         if ($id > 0) {
             $this->customerModel->delete($id);

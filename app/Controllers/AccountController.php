@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Validator;
 use App\Models\AccountModel;
@@ -12,7 +11,7 @@ class AccountController extends Controller {
     private CustomerModel $customerModel;
 
     public function __construct() {
-        Auth::requireRole('admin');
+        $this->requireAdmin();
         $this->accountModel = new AccountModel();
         $this->customerModel = new CustomerModel();
     }
@@ -42,11 +41,12 @@ class AccountController extends Controller {
     }
 
     public function store(): void {
+        $this->verifyCsrfToken();
         $data = $this->postData();
         $errors = Validator::account($data, true);
         if (!$errors) {
-            if ($this->accountModel->usernameExists($data['username'])) {
-                $errors['username'] = 'Tên đăng nhập đã tồn tại.';
+            if ($this->accountModel->emailExists($data['email'])) {
+                $errors['email'] = 'Email này đã được đăng ký.';
             }
             if (!empty($data['customer_id']) && !$this->customerModel->findById((int)$data['customer_id'])) {
                 $errors['customer_id'] = 'Khách hàng liên kết không tồn tại.';
@@ -84,6 +84,7 @@ class AccountController extends Controller {
     }
 
     public function update(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         $account = $this->accountModel->findById($id);
         if (!$account) {
@@ -93,8 +94,8 @@ class AccountController extends Controller {
         $data = $this->postData();
         $errors = Validator::account($data, false);
         if (!$errors) {
-            if ($this->accountModel->usernameExists($data['username'], $id)) {
-                $errors['username'] = 'Tên đăng nhập đã tồn tại.';
+            if ($this->accountModel->emailExists($data['email'], $id)) {
+                $errors['email'] = 'Email này đã được đăng ký.';
             }
             if (!empty($data['customer_id']) && !$this->customerModel->findById((int)$data['customer_id'])) {
                 $errors['customer_id'] = 'Khách hàng liên kết không tồn tại.';
@@ -118,12 +119,13 @@ class AccountController extends Controller {
     }
 
     public function toggleStatus(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         $status = (string)($_POST['status'] ?? '');
         $account = $this->accountModel->findById($id);
 
         if ($account && $status === 'locked') {
-            if ($id === (int)(Auth::user()['id'] ?? 0)) {
+            if ($id === (int)(current_user()['id'] ?? 0)) {
                 $_SESSION['flash_error'] = 'Không thể khóa tài khoản đang đăng nhập.';
                 $this->redirect('/accounts');
             }
@@ -140,13 +142,14 @@ class AccountController extends Controller {
     }
 
     public function delete(): void {
+        $this->verifyCsrfToken();
         $id = (int)($_POST['id'] ?? 0);
         $account = $this->accountModel->findById($id);
 
         if (!$account) {
             $this->redirect('/accounts');
         }
-        if ($id === (int)(Auth::user()['id'] ?? 0)) {
+        if ($id === (int)(current_user()['id'] ?? 0)) {
             $_SESSION['flash_error'] = 'Không thể xóa tài khoản đang đăng nhập.';
             $this->redirect('/accounts');
         }
@@ -162,9 +165,10 @@ class AccountController extends Controller {
 
     private function postData(): array {
         return [
-            'username'    => strtolower(trim((string)($_POST['username'] ?? ''))),
+            'name'        => trim((string)($_POST['name'] ?? '')),
+            'email'       => strtolower(trim((string)($_POST['email'] ?? ''))),
             'password'    => (string)($_POST['password'] ?? ''),
-            'role'        => (string)($_POST['role'] ?? 'customer'),
+            'role'        => (string)($_POST['role'] ?? 'user'),
             'customer_id' => (string)($_POST['customer_id'] ?? ''),
             'status'      => (string)($_POST['status'] ?? 'active'),
         ];

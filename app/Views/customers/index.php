@@ -63,11 +63,13 @@
               <div class="flex justify-end gap-3 text-xs font-semibold">
                 <a href="<?= base_url('/customers/edit?id=' . (int)$c['id']) ?>" class="text-indigo-600 hover:underline">Sửa</a>
                 <form method="POST" action="<?= base_url('/customer/status') ?>">
+                  <?= csrf_field() ?>
                   <input type="hidden" name="id" value="<?= (int)$c['id'] ?>" />
                   <input type="hidden" name="status" value="<?= $c['status'] === 'active' ? 'inactive' : 'active' ?>" />
                   <button type="submit" class="text-amber-600 hover:underline"><?= $c['status'] === 'active' ? 'Ngưng' : 'Kích hoạt' ?></button>
                 </form>
                 <form method="POST" action="<?= base_url('/customer/delete') ?>" onsubmit="return confirm('Xóa khách hàng này?')">
+                  <?= csrf_field() ?>
                   <input type="hidden" name="id" value="<?= (int)$c['id'] ?>" />
                   <button type="submit" class="text-rose-600 hover:underline">Xóa</button>
                 </form>

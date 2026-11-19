@@ -1,4 +1,10 @@
 <?php
+ini_set('session.use_strict_mode', '1');
+session_set_cookie_params([
+    'httponly' => true,
+    'samesite' => 'Lax',
+    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+]);
 session_start();
 
 require_once __DIR__ . '/../app/Core/helpers.php';
@@ -21,6 +27,7 @@ use App\Controllers\CarController;
 use App\Controllers\BookingController;
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
+use App\Controllers\SupportController;
 use App\Controllers\CustomerController;
 use App\Controllers\AccountController;
 
@@ -36,10 +43,14 @@ $router->post('/admin/car/store', [AdminController::class, 'storeCar']);
 $router->post('/admin/car/delete', [AdminController::class, 'deleteCar']);
 $router->get('/api/cars/locations', [AdminController::class, 'getLocations']);
 $router->post('/api/cars/simulate', [AdminController::class, 'simulateMovement']);
-
+$router->get('/register', [AuthController::class, 'registerForm']);
+$router->post('/register', [AuthController::class, 'register']);
 $router->get('/login', [AuthController::class, 'loginForm']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->post('/logout', [AuthController::class, 'logout']);
+$router->get('/support', [SupportController::class, 'index']);
+$router->post('/support/send', [SupportController::class, 'send']);
+$router->get('/admin/support', [AdminController::class, 'supportHistory']);
 
 $router->get('/customers', [CustomerController::class, 'index']);
 $router->get('/customers/create', [CustomerController::class, 'createForm']);

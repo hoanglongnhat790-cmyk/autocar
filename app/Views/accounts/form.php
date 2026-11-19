@@ -7,15 +7,24 @@
   </div>
 
   <form method="POST" action="<?= base_url($account ? '/account/update' : '/account/store') ?>" class="bg-white p-6 rounded-2xl border border-slate-200 space-y-4">
+    <?= csrf_field() ?>
     <?php if ($account): ?>
       <input type="hidden" name="id" value="<?= (int)$account['id'] ?>" />
     <?php endif; ?>
 
-    <div>
-      <label class="block text-xs font-bold text-slate-600 mb-1">Tên đăng nhập *</label>
-      <input type="text" name="username" required maxlength="50" value="<?= e($old['username'] ?? '') ?>"
-             class="w-full h-11 px-3 rounded-xl border border-slate-200" />
-      <?php if (!empty($errors['username'])): ?><p class="text-xs text-rose-600 mt-1"><?= e($errors['username']) ?></p><?php endif; ?>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Họ tên *</label>
+        <input type="text" name="name" required maxlength="100" value="<?= e($old['name'] ?? '') ?>"
+               class="w-full h-11 px-3 rounded-xl border border-slate-200" />
+        <?php if (!empty($errors['name'])): ?><p class="text-xs text-rose-600 mt-1"><?= e($errors['name']) ?></p><?php endif; ?>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Email đăng nhập *</label>
+        <input type="email" name="email" required maxlength="190" value="<?= e($old['email'] ?? '') ?>"
+               class="w-full h-11 px-3 rounded-xl border border-slate-200" />
+        <?php if (!empty($errors['email'])): ?><p class="text-xs text-rose-600 mt-1"><?= e($errors['email']) ?></p><?php endif; ?>
+      </div>
     </div>
 
     <div>
@@ -31,8 +40,8 @@
       <div>
         <label class="block text-xs font-bold text-slate-600 mb-1">Vai trò</label>
         <select name="role" class="w-full h-11 px-3 rounded-xl border border-slate-200 bg-white">
-          <?php foreach (['admin' => 'Admin', 'staff' => 'Nhân viên', 'customer' => 'Khách hàng'] as $key => $label): ?>
-            <option value="<?= $key ?>" <?= ($old['role'] ?? 'customer') === $key ? 'selected' : '' ?>><?= $label ?></option>
+          <?php foreach (['user' => 'Người dùng', 'admin' => 'Quản trị viên'] as $key => $label): ?>
+            <option value="<?= $key ?>" <?= ($old['role'] ?? 'user') === $key ? 'selected' : '' ?>><?= $label ?></option>
           <?php endforeach; ?>
         </select>
       </div>

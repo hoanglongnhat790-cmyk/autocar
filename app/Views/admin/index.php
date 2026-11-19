@@ -22,6 +22,7 @@
     <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 h-fit">
       <h2 class="text-lg font-extrabold text-slate-900 mb-4">+ Thêm xe mới cho thuê</h2>
       <form method="POST" action="<?= base_url('/admin/car/store') ?>" class="space-y-3 text-sm">
+        <?= csrf_field() ?>
         <div>
           <label class="block text-xs font-bold mb-1">Tên mẫu xe *</label>
           <input type="text" name="name" required placeholder="VD: Mazda CX-5 Premium 2025" class="w-full h-10 px-3 rounded-xl border border-slate-200" />
@@ -83,6 +84,7 @@
     <!-- Car Table -->
     <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 overflow-x-auto">
       <h2 class="text-lg font-extrabold text-slate-900 mb-4">Danh sách xe trong Database</h2>
+      <a href="<?= base_url('/admin/support') ?>" class="inline-block mb-3 text-sm font-bold text-emerald-700 hover:underline">Xem lịch sử hỗ trợ khách hàng</a>
       <table class="w-full text-left text-sm border-collapse">
         <thead>
           <tr class="border-b border-slate-200 text-xs uppercase text-slate-500">
@@ -100,6 +102,7 @@
               <td class="py-3 font-bold text-emerald-600"><?= format_vnd((int)$c['price_per_day']) ?></td>
               <td class="py-3 text-right">
                 <form method="POST" action="<?= base_url('/admin/car/delete') ?>" onsubmit="return confirm('Xóa xe này khỏi CSDL?')">
+                  <?= csrf_field() ?>
                   <input type="hidden" name="car_id" value="<?= (int)$c['id'] ?>" />
                   <button type="submit" class="text-xs text-rose-600 hover:underline font-semibold">Xóa</button>
                 </form>
@@ -195,7 +198,10 @@
       btn.textContent = '⏸ Đang mô phỏng (Dừng)';
       btn.classList.replace('bg-emerald-600', 'bg-rose-600');
       simInterval = setInterval(async () => {
-        await fetch('<?= base_url('/api/cars/simulate') ?>', { method: 'POST' });
+        await fetch('<?= base_url('/api/cars/simulate') ?>', {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': '<?= e(csrf_token()) ?>' }
+        });
         await fetchCarLocations();
       }, 2500);
     }

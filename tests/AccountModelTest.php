@@ -25,41 +25,43 @@ final class AccountModelTest extends TestCase {
     public function testCreateHashesPasswordAndLoginWorks(): void {
         $customerId = $this->makeCustomer();
         $id = $this->model->create([
-            'username' => ' User.Test ',
+            'name' => 'Người dùng test',
+            'email' => ' User.Test@Example.com ',
             'password' => 'MatKhau@123',
-            'role' => 'customer',
+            'role' => 'user',
             'customer_id' => $customerId,
             'status' => 'active',
         ]);
 
         $account = $this->model->findById($id);
         $this->assertGreaterThan(0, $id);
-        $this->assertSame('user.test', $account['username']);
+        $this->assertSame('Người dùng test', $account['name']);
+        $this->assertSame('user.test@example.com', $account['email']);
         $this->assertNotSame('MatKhau@123', $account['password_hash']);
         $this->assertTrue(password_verify('MatKhau@123', $account['password_hash']));
         $this->assertSame('Khách hàng test', $account['customer_name']);
 
-        $loggedIn = $this->model->verifyCredentials('user.test', 'MatKhau@123');
+        $loggedIn = $this->model->verifyCredentials('user.test@example.com', 'MatKhau@123');
         $this->assertNotNull($loggedIn);
         $this->assertArrayNotHasKey('password_hash', $loggedIn);
         $this->assertNotNull($loggedIn['last_login_at']);
     }
 
-    public function testDuplicateUsernameIsRejected(): void {
-        $this->model->create(['username' => 'admin', 'password' => 'Admin@123', 'role' => 'admin']);
-        $this->assertTrue($this->model->usernameExists('admin'));
-        $this->assertFalse($this->model->usernameExists('admin', 1));
+    public function testDuplicateEmailIsRejected(): void {
+        $this->model->create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => 'Admin@123', 'role' => 'admin']);
+        $this->assertTrue($this->model->emailExists('admin@example.com'));
+        $this->assertFalse($this->model->emailExists('admin@example.com', 1));
 
         $this->expectException(InvalidArgumentException::class);
-        $this->model->create(['username' => 'ADMIN', 'password' => 'Admin@123', 'role' => 'admin']);
+        $this->model->create(['name' => 'Admin 2', 'email' => 'ADMIN@example.com', 'password' => 'Admin@123', 'role' => 'admin']);
     }
 
     public function testGetAllFiltersByRoleStatusAndKeyword(): void {
         $customerId = $this->makeCustomer();
-        $this->model->create(['username' => 'admin01', 'password' => 'Admin@123', 'role' => 'admin']);
-        $this->model->create(['username' => 'staff01', 'password' => 'Staff@123', 'role' => 'staff', 'status' => 'locked']);
+        $this->model->create(['name' => 'Admin One', 'email' => 'admin1@example.com', 'password' => 'Admin@123', 'role' => 'admin']);
+        $this->model->create(['name' => 'User Locked', 'email' => 'locked@example.com', 'password' => 'User@12345', 'role' => 'user', 'status' => 'locked']);
         $this->model->create([
-            'username' => 'khach01', 'password' => 'Customer@123', 'role' => 'customer', 'customer_id' => $customerId,
+            'name' => 'Khách hàng test', 'email' => 'khach01@example.com', 'password' => 'Customer@123', 'role' => 'user', 'customer_id' => $customerId,
         ]);
 
         $this->assertCount(3, $this->model->getAll());
@@ -67,43 +69,46 @@ final class AccountModelTest extends TestCase {
         $this->assertCount(2, $this->model->getAll('', 'all', 'active'));
         $results = $this->model->getAll('Khách hàng test');
         $this->assertCount(1, $results);
-        $this->assertSame('khach01', $results[0]['username']);
+        $this->assertSame('khach01@example.com', $results[0]['email']);
     }
 
     public function testUpdateCanChangePasswordAndKeepItWhenBlank(): void {
         $id = $this->model->create([
-            'username' => 'old.name', 'password' => 'OldPass@123', 'role' => 'staff',
+            'name' => 'Old Name', 'email' => 'old@example.com', 'password' => 'OldPass@123', 'role' => 'user',
         ]);
         $hashBefore = $this->model->findById($id)['password_hash'];
 
         $this->assertTrue($this->model->update($id, [
-            'username' => 'new.name', 'password' => '', 'role' => 'admin', 'status' => 'active',
+            'name' => 'New Name', 'email' => 'new@example.com', 'password' => '', 'role' => 'admin', 'status' => 'active',
         ]));
         $account = $this->model->findById($id);
-        $this->assertSame('new.name', $account['username']);
+        $this->assertSame('New Name', $account['name']);
+        $this->assertSame('new@example.com', $account['email']);
         $this->assertSame('admin', $account['role']);
         $this->assertSame($hashBefore, $account['password_hash']);
 
         $this->model->update($id, [
-            'username' => 'new.name', 'password' => 'NewPass@456', 'role' => 'admin', 'status' => 'active',
+            'name' => 'New Name', 'email' => 'new@example.com', 'password' => 'NewPass@456', 'role' => 'admin', 'status' => 'active',
         ]);
         $this->assertFalse(password_verify('OldPass@123', $this->model->findById($id)['password_hash']));
         $this->assertTrue(password_verify('NewPass@456', $this->model->findById($id)['password_hash']));
     }
 
     public function testVerifyCredentialsRejectsWrongPasswordAndLockedAccount(): void {
-        $this->model->create(['username' => 'login01', 'password' => 'Pass@12345', 'role' => 'customer']);
-        $this->assertNull($this->model->verifyCredentials('login01', 'wrong-password'));
-        $this->assertNull($this->model->verifyCredentials('missing', 'Pass@12345'));
+        $this->model->create([
+            'name' => 'Login User', 'email' => 'login@example.com', 'password' => 'Pass@12345', 'role' => 'user',
+        ]);
+        $this->assertNull($this->model->verifyCredentials('login@example.com', 'wrong-password'));
+        $this->assertNull($this->model->verifyCredentials('missing@example.com', 'Pass@12345'));
 
         $this->model->setStatus(1, 'locked');
-        $this->assertNull($this->model->verifyCredentials('login01', 'Pass@12345'));
+        $this->assertNull($this->model->verifyCredentials('login@example.com', 'Pass@12345'));
     }
 
     public function testStatusGuardAndDelete(): void {
-        $this->model->create(['username' => 'admin01', 'password' => 'Admin@123', 'role' => 'admin']);
-        $this->model->create(['username' => 'admin02', 'password' => 'Admin@123', 'role' => 'admin']);
-        $this->model->create(['username' => 'staff01', 'password' => 'Staff@123', 'role' => 'staff']);
+        $this->model->create(['name' => 'Admin 1', 'email' => 'admin1@example.com', 'password' => 'Admin@123', 'role' => 'admin']);
+        $this->model->create(['name' => 'Admin 2', 'email' => 'admin2@example.com', 'password' => 'Admin@123', 'role' => 'admin']);
+        $this->model->create(['name' => 'User 1', 'email' => 'user1@example.com', 'password' => 'User@12345', 'role' => 'user']);
         $this->model->setStatus(2, 'locked');
 
         $this->assertSame(1, $this->model->countActiveAdmins());

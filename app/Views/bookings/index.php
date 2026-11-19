@@ -38,6 +38,7 @@
             <?php endif; ?>
             <?php if ($b['status'] === 'confirmed'): ?>
               <form method="POST" action="<?= base_url('/booking/cancel') ?>" class="mt-2" onsubmit="return confirm('Xác nhận hủy đơn đặt xe này?')">
+                <?= csrf_field() ?>
                 <input type="hidden" name="booking_id" value="<?= (int)$b['id'] ?>" />
                 <button type="submit" class="px-3 py-1 rounded-lg border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50">Hủy chuyến</button>
               </form>
