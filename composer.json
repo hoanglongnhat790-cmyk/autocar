@@ -1,0 +1,20 @@
+{
+  "name": "hoanglongnhat790/autocar",
+  "description": "VietCar - PHP MVC car rental with customer and account management",
+  "type": "project",
+  "require": {
+    "php": ">=8.0",
+    "ext-pdo": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6 || ^10.0 || ^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  }
+}

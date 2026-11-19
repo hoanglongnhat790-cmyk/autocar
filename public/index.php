@@ -20,6 +20,9 @@ use App\Core\Router;
 use App\Controllers\CarController;
 use App\Controllers\BookingController;
 use App\Controllers\AdminController;
+use App\Controllers\AuthController;
+use App\Controllers\CustomerController;
+use App\Controllers\AccountController;
 
 $router = new Router();
 
@@ -31,10 +34,27 @@ $router->post('/booking/cancel', [BookingController::class, 'cancel']);
 $router->get('/admin', [AdminController::class, 'index']);
 $router->post('/admin/car/store', [AdminController::class, 'storeCar']);
 $router->post('/admin/car/delete', [AdminController::class, 'deleteCar']);
-
-$router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
 $router->get('/api/cars/locations', [AdminController::class, 'getLocations']);
 $router->post('/api/cars/simulate', [AdminController::class, 'simulateMovement']);
-// Route cho biên bản bàn giao xe
-$router->get('/booking/inspection', [App\Controllers\BookingController::class, 'inspectionForm']);
-$router->post('/booking/inspection/save', [App\Controllers\BookingController::class, 'saveInspection']);
+
+$router->get('/login', [AuthController::class, 'loginForm']);
+$router->post('/login', [AuthController::class, 'login']);
+$router->post('/logout', [AuthController::class, 'logout']);
+
+$router->get('/customers', [CustomerController::class, 'index']);
+$router->get('/customers/create', [CustomerController::class, 'createForm']);
+$router->post('/customer/store', [CustomerController::class, 'store']);
+$router->get('/customers/edit', [CustomerController::class, 'editForm']);
+$router->post('/customer/update', [CustomerController::class, 'update']);
+$router->post('/customer/status', [CustomerController::class, 'toggleStatus']);
+$router->post('/customer/delete', [CustomerController::class, 'delete']);
+
+$router->get('/accounts', [AccountController::class, 'index']);
+$router->get('/accounts/create', [AccountController::class, 'createForm']);
+$router->post('/account/store', [AccountController::class, 'store']);
+$router->get('/accounts/edit', [AccountController::class, 'editForm']);
+$router->post('/account/update', [AccountController::class, 'update']);
+$router->post('/account/status', [AccountController::class, 'toggleStatus']);
+$router->post('/account/delete', [AccountController::class, 'delete']);
+
+$router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
