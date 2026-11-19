@@ -1,0 +1,19 @@
+<div class="max-w-md mx-auto px-4 py-12">
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-7">
+    <h1 class="text-2xl font-extrabold text-slate-900">Đăng nhập</h1>
+    <p class="text-sm text-slate-500 mt-1 mb-6">Đăng nhập tài khoản VietCar của bạn.</p>
+    <form method="POST" action="<?= base_url('/login') ?>" class="space-y-4">
+      <?= csrf_field() ?>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Email</label>
+        <input type="email" name="email" required autocomplete="email" class="w-full h-11 px-3 rounded-xl border border-slate-300">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Mật khẩu</label>
+        <input type="password" name="password" required autocomplete="current-password" class="w-full h-11 px-3 rounded-xl border border-slate-300">
+      </div>
+      <button class="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl">Đăng nhập</button>
+    </form>
+    <p class="text-sm text-center text-slate-600 mt-5">Chưa có tài khoản? <a class="text-emerald-700 font-bold" href="<?= base_url('/register') ?>">Đăng ký</a></p>
+  </div>
+</div>
